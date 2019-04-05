@@ -19,8 +19,8 @@ namespace NeedForGold
             this.BackColor = Color.Transparent;
             this.SizeMode = PictureBoxSizeMode.StretchImage;
 
-            this.ImageLocation = "../slike/coin.png";
-            
+            this.Image = Properties.Resources.coin;
+
         }
 
         public override int Oznaka()

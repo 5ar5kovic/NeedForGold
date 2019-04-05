@@ -20,7 +20,7 @@ namespace NeedForGold
             this.BackColor = Color.Transparent;
             this.SizeMode = PictureBoxSizeMode.StretchImage;
 
-            this.ImageLocation = "../slike/prepreka.png";
+            this.Image = Properties.Resources.prepreka;
         }
 
         public override int Oznaka()

@@ -24,11 +24,7 @@ namespace NeedForGold
         {
             rand = new Random();
             l1 = new List<Panel>();
-            
-
-
-
-         
+ 
             InitializeComponent();
            
             for (int i = 0; i < 3; i++)
@@ -69,6 +65,16 @@ namespace NeedForGold
                         DialogResult dlg = MessageBox.Show("Nova igra","Kraj igre",MessageBoxButtons.YesNo);
                         if (dlg == DialogResult.Yes)
                         {
+
+                            while (objekti.Count != 0)
+                            {
+                                this.Controls.Remove(Controls.Find(objekti.ElementAt(0).Name, true)[0]);
+                                objekti.ElementAt(0).Parent = null;
+                                objekti.ElementAt(0).SendToBack();
+                                objekti.ElementAt(0).Dispose();
+                                objekti.RemoveAt(0);
+                            }
+                            
                             NovaIgra();
                         }
                         else
@@ -96,12 +102,11 @@ namespace NeedForGold
 
         private void NovaIgra()
         {
-
-            // Nesto fali .........
-
             objekti = new List<Objekti>();
             brojpoena = 0;
             trenutnabrzina = 1;
+            label2.Text = "0";
+            label4.Text = "1";
             timer1 = new Timer();
             timer1.Interval = 1000;
             timer1.Tick += Kreiranje;
@@ -111,10 +116,6 @@ namespace NeedForGold
             timer2.Tick += Pomeraj;
             timer2.Start();
             auto = pictureBox1;
-             
-
-
-
         }
 
         private void Kreiranje(object sender, EventArgs e)
