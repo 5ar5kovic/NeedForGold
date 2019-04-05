@@ -7,11 +7,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using FireSharp;
+using FireSharp.Response;
+using FireSharp.Config;
+using FireSharp.Interfaces;
 namespace NeedForGold
 {
     public partial class Form1 : Form
     {
+        private IFirebaseConfig config = new FirebaseConfig
+        {
+            AuthSecret = "WaiW7Yub2iuEl1jUVwfiKeIIm2rKH00oM7O4TTlI",
+            BasePath = "https://needforgold2.firebaseio.com/"
+        };
+        // Konekcija sa bazom odnosno klijentska veza 
+
+        private SortedSet<Igrac> igraci;
+        private IFirebaseClient client;
         private List<Panel> l1;
         private int trenutnaPozicija = 1;
         private PictureBox auto;
@@ -24,7 +36,7 @@ namespace NeedForGold
         {
             rand = new Random();
             l1 = new List<Panel>();
- 
+            igraci = new SortedSet<Igrac>();
             InitializeComponent();
            
             for (int i = 0; i < 3; i++)
@@ -61,7 +73,7 @@ namespace NeedForGold
                     {
                         timer1.Stop();
                         timer2.Stop();
-                        
+                        UbaciRezultate();
                         DialogResult dlg = MessageBox.Show("Nova igra","Kraj igre",MessageBoxButtons.YesNo);
                         if (dlg == DialogResult.Yes)
                         {
@@ -100,6 +112,37 @@ namespace NeedForGold
             }
         }
 
+        private void Osvezi()
+        {
+            igraci = new SortedSet<Igrac>();
+            FirebaseResponse resp = client.Get("Igre");
+            Dictionary<string, Igrac> dict = resp.ResultAs<Dictionary<string, Igrac>>();
+            if (dict != null)
+            {
+                foreach (var i in dict)
+                {
+                    i.Value.baseid = i.Key;
+                    igraci.Add(i.Value);
+                }
+
+
+
+            }
+
+            for (int i = 0; i < igraci.Count && i < 5; i++)
+            {
+                string name = "label" + (2 * i + 6);
+                string name2 = "label" + (2*i + 7);
+                Label temp1 = Controls.Find(name, true)[0] as Label;
+                Label temp2 = Controls.Find(name2, true)[0] as Label;
+                temp1.Text = igraci.ElementAt(i).username;
+                temp2.Text = igraci.ElementAt(i).poeni.ToString();
+
+            }
+
+        }
+
+
         private void NovaIgra()
         {
             objekti = new List<Objekti>();
@@ -116,6 +159,10 @@ namespace NeedForGold
             timer2.Tick += Pomeraj;
             timer2.Start();
             auto = pictureBox1;
+            if (client != null)
+            {
+                Osvezi();
+            }
         }
 
         private void Kreiranje(object sender, EventArgs e)
@@ -138,6 +185,30 @@ namespace NeedForGold
             obj.Width = obj.Parent.Width;
              
             objekti.Add(obj);
+
+        }
+
+        private void UbaciRezultate()
+        {
+            var igrac = new Igrac
+            {
+                username = Properties.Settings.Default.username,
+                poeni = brojpoena,
+                baseid = " "
+            };
+            FirebaseResponse resp = client.Push("Igre/", igrac);
+
+        }
+
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            client = new FirebaseClient(config);
+            if (client != null)
+            {
+                Osvezi();
+            }
+
 
         }
 
